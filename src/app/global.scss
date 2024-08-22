@@ -8,7 +8,7 @@
   box-sizing: border-box;
 }
 
-$delay:0.15;
+$delay: 0.15;
 @keyframes scale-down {
   0%,
   100% {
@@ -20,6 +20,7 @@ $delay:0.15;
     background-color: #fff;
   }
 }
+
 @for $i from 1 through 3 {
   .loader-#{$i} {
     animation: scale-down 1.5s #{$delay*$i}s infinite ease-in-out;
@@ -29,11 +30,10 @@ $delay:0.15;
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+                  to bottom,
+                  transparent,
+                  rgb(var(--background-end-rgb))
+  ) rgb(var(--background-start-rgb));
 }
 
 .scrollBar {
@@ -55,6 +55,7 @@ body {
     background-color: #555;
   }
 }
+
 .scrollBarMain {
   &::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
@@ -71,5 +72,42 @@ body {
   &::-webkit-scrollbar-thumb {
     border-radius: 10px;
     background-color: #555;
+  }
+}
+
+.multi-range-slider {
+  box-shadow: none !important;
+  border: none !important;
+
+  & div.bar-right ,div.bar-inner ,.thumb ,.thumb-left {
+    box-shadow: none !important;
+    border: none !important;
+    height: 2px !important;
+    padding: 0 !important;
+  }
+  & div.bar-inner{
+    background: black !important;
+  }
+  & div.bar-left , div.bar-right{
+    background: #c08c8c !important;
+    box-shadow: none !important;
+    border: none !important;
+    height: 2px !important;
+    padding: 0 !important;
+  }
+  &  .thumb-left::before,.thumb-right:before{
+    background: black !important;
+    border: none !important;
+    box-shadow: none !important;
+    height: 12px !important;
+    width: 12px !important;
+    border-radius: 100% !important;
+    margin-top: -5px !important;
+  }
+  & .caption{
+    display: none !important;
+  }
+  & div.labels {
+    display: none !important;
   }
 }

@@ -107,7 +107,7 @@ const Navbar = () => {
                         <motion.div initial={{opacity: 0}} animate={{opacity: 1}} exit={{opacity: 0}}
                                     className={'flex flex-wrap gap-3 py-4 mx-5'}>
                             {/*TODO add filters to product page*/}
-                            <FilterProducts allColors={allColors} allSizes={allSizes} allAttributes={allAttributes}/>
+                            <FilterProducts min={minPrice} max={maxPrice} allColors={allColors} allSizes={allSizes} allAttributes={allAttributes}/>
                         </motion.div>
                     )}
                 </li>

@@ -13,9 +13,11 @@ interface FilterProps {
     allColors: ColorType[];
     allSizes: SizeType[];
     allAttributes: AttributeType[];
+    min: number,
+    max: number
 }
 
-const FilterComponent: React.FC<FilterProps> = ({allColors, allSizes, allAttributes}) => {
+const FilterComponent: React.FC<FilterProps> = ({allColors, allSizes, allAttributes, min, max}) => {
     const selectedFilter = useSelector((state: RootState) => state.filter.selectedFilter);
     const [showColor, setShowColor] = useState(false);
     const [showSize, setShowSize] = useState(false);
@@ -84,7 +86,7 @@ const FilterComponent: React.FC<FilterProps> = ({allColors, allSizes, allAttribu
                             قیمت
                         </button>
                         <PriceRange togglePrice={togglePrice} showPrice={showPrice} selectedFilter={selectedFilter}
-                                    max={10000} min={5000}/>
+                                    max={max} min={min}/>
                     </Fragment>
 
                 )}

@@ -15,6 +15,8 @@ interface AttrType {
     allAttributes: AttributeType[];
     allColors: ColorType[];
     allSizes: AttributeType[];
+    minPrice: number;
+    maxPrice: number;
 }
 
 export const Products = ({slug, attrs}: { slug: string; attrs: AttrType }) => {
@@ -25,7 +27,6 @@ export const Products = ({slug, attrs}: { slug: string; attrs: AttrType }) => {
     const filteredProducts = useSelector((state: RootState) => state.filter.filteredProducts);
     const products = useSelector((state: RootState) => state.filter.products);
     const pageGrids = useSelector((state: RootState) => state.gridStore.grid);
-
     useEffect(() => {
         dispatch(setInitialFilters(attrs));
     }, [attrs, dispatch]);
