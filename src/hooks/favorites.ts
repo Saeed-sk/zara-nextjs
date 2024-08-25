@@ -6,4 +6,3 @@ export function useMarked(product: ProductType): boolean {
     const favorites:ProductType[] = useSelector((state:RootState) => state.favorite.favorites);
     return favorites.some(favorite => favorite.id === product.id);
 }
-

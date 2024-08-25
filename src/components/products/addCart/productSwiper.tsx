@@ -6,11 +6,13 @@ import {Scrollbar} from 'swiper/modules';
 import {ImageType} from "@/types";
 import {Swiper as SwiperType} from "swiper";
 import {useImageSrc} from "@/hooks/src";
+import Image from "next/image";
 
-const ProductSwiper = ({images, classes, slideIndex}: {
-    images: ImageType[],
+const ProductSwiper = ({images, classes, slideIndex, changeSlide}: {
+    images: ImageType[] | undefined,
     classes?: string,
-    slideIndex: number
+    slideIndex: number,
+    changeSlide: (index: number) => void
 }) => {
     const ref = useRef<SwiperType | null>();
     useLayoutEffect(() => {
@@ -19,6 +21,10 @@ const ProductSwiper = ({images, classes, slideIndex}: {
         }
     });
 
+    function imagePath(src: string) {
+        return useImageSrc(src);
+    }
+
     return (
         <Swiper
             scrollbar={{
@@ -26,14 +32,23 @@ const ProductSwiper = ({images, classes, slideIndex}: {
                 draggable: true,
             }}
             direction={'vertical'}
+            onSlideChange={(swiper) => (changeSlide(swiper.activeIndex))}
             modules={[Scrollbar]}
             onSwiper={(swiper) => (ref.current = swiper)}
-            className={`mySwiper ${classes}`}
+            className={`w-full h-full aspect-product ${classes}`}
         >
-            {images.map((image, index) => {
+            {images?.map((image, index) => {
                 return (
-                    <SwiperSlide key={index}>
-                        <img className={'w-full h-full'} src={`${useImageSrc(image.src)}`} alt={image.src}/>
+                    <SwiperSlide className={''} key={index}>
+                        <div className={'w-full h-full'}>
+                            <Image fill
+                                   className={'z-0 object-cover'}
+                                   src={imagePath(image.src)}
+                                   alt={'عکس محصولات'}
+                                   sizes={'(width:100%)'}
+                                   priority
+                            />
+                        </div>
                     </SwiperSlide>
                 );
             })}

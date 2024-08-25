@@ -10,7 +10,6 @@ import {motion} from "framer-motion";
 import {GridChange} from "@/components/products/gridChange";
 import {AppDispatch, RootState} from "@/store/store";
 import {NavLinks, NavLinksMoblie} from "@/components/navbar/items/navLinks";
-import {fetchUser} from "@/store/features/userSlice";
 import FilterProducts from "@/components/products/filter/filterProducts";
 
 
@@ -20,9 +19,6 @@ const Navbar = () => {
     const path = useSelector((state: RootState) => state.categories.path)
     const pathName = usePathname()
     const {allColors, allAttributes, allSizes, minPrice, maxPrice} = useSelector((state: RootState) => state.filter.filters)
-    useEffect(() => {
-        dispatch(fetchUser())
-    }, [pathName]);
 
     useEffect(() => {
         dispatch(fetchCategory())

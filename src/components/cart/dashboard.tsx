@@ -4,7 +4,7 @@ import Baskets from "@/components/cart/items/baskets";
 import {Favorites} from "@/components/cart/items/favorites";
 import Shopping from "@/components/cart/items/shopping";
 
-export const Cart = () => {
+export const Dashboard = () => {
     const [currentPage, setCurrentPage] = useState('basket')
     return (
         <section className={'w-full h-full z-30'}>

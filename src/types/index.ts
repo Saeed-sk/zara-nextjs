@@ -30,9 +30,9 @@ export interface ColorType {
     id: number;
     name: string;
     color: string;
-    created_at: string;
-    updated_at: string;
-    pivot: {
+    created_at?: string;
+    updated_at?: string;
+    pivot?: {
         product_id: number;
         color_id: number;
     };
@@ -78,27 +78,55 @@ export interface PaginationType {
     to: number;
 }
 
+interface Pivot {
+    basket_id: number;
+    product_id: number;
+    color_id: number;
+    size_id: number;
+    quantity: number;
+}
+
 export interface ProductType {
     id: number;
-    template: "single" | "collection";
-    title: string;
-    parent_id: number | null;
-    description: string;
-    maintenance: string;
-    slug: string;
-    discount: string;
-    price: string;
-    created_at: string;
-    updated_at: string;
-    pivot: {
-        category_id: number;
-        product_id: number;
+    template?: "single" | "collection";
+    title?: string;
+    parent_id?: number | null;
+    description?: string;
+    maintenance?: string;
+    slug?: string;
+    discount?: string;
+    price?: string;
+    created_at?: string;
+    updated_at?: string;
+    pivot: Pivot
+    attributes?: AttributeType[];
+    colors: ColorType[] | [];
+    sizes: SizeType[] | [];
+    images?: ImageType[];
+    children?: ProductType[];
+    quantity?: number;
+}
+
+export interface BasketType {
+    id: number;
+    title?: string;
+    discount?: string;
+    price?: string;
+    color?: {
+        id: number;
+        name: string;
+        color: string;
+        created_at?: string;
+        updated_at?: string;
     };
-    attributes: AttributeType[];
-    colors: ColorType[];
-    sizes: SizeType[];
-    images: ImageType[];
-    children: ProductType[]
+    size?: {
+        id: number;
+        size: string;
+        created_at: string;
+        updated_at: string;
+    };
+    images?: ImageType[];
+    quantity?: number;
 }
 
 export interface UserType {
@@ -114,8 +142,11 @@ export interface UserType {
 export interface LoginProps {
     email: string;
     password: string;
-    setErrors: (errors: Record<string, string[]>) => void;
+    setErrors: (errors: any[]) => void;
     setStatus: (status: string | null) => void;
+}
+export interface setErrors {
+    setErrors: (errors: any[]) => void;
 }
 
 export interface RegisterProps {
@@ -123,7 +154,7 @@ export interface RegisterProps {
     email: string;
     password: string;
     password_confirmation: string;
-    setErrors: (errors: Record<string, string[]>) => void;
+    setErrors: (errors: any[]) => void;
 }
 
 export interface AuthProps {

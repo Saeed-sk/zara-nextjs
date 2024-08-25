@@ -1,6 +1,7 @@
 import {createSlice, createAsyncThunk, PayloadAction} from "@reduxjs/toolkit";
 import {getCategories} from "@/api/getCategories";
 import {CategoryProps} from "@/types";
+import {RootState} from "@/store/store";
 
 interface Props {
     categories: CategoryProps[] | undefined;
@@ -18,7 +19,7 @@ const initialState: Props = {
     path: 'home',
 };
 
-export const fetchCategory = createAsyncThunk('category/fetchCategory', async () => {
+export const fetchCategory = createAsyncThunk<CategoryProps[], void>('category/fetchCategory', async () => {
     const response: any = await getCategories();
     return response;
 });
@@ -35,11 +36,11 @@ export const categorySlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchCategory.pending, (state) => {
+            .addCase(fetchCategory.pending, (state:Props) => {
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(fetchCategory.fulfilled, (state, action: PayloadAction<CategoryProps[]>) => {
+            .addCase(fetchCategory.fulfilled, (state:Props, action: PayloadAction<CategoryProps[]>) => {
                 state.isLoading = false;
                 state.categories = action.payload;
                 state.selectedCategory = 0;

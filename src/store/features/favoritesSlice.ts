@@ -1,43 +1,80 @@
-import { ProductType } from "@/types";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {ProductType} from "@/types";
+import {createSlice, PayloadAction, createAsyncThunk} from "@reduxjs/toolkit";
+import {deleteFavorites, postFavorites} from "@/api/favoritesApi";
+import {RootState} from "@/store/store";
 
-const loadFavoritesFromLocalStorage = (): ProductType[] => {
-    // const savedFavorites = localStorage.getItem('favorites');
-    // if (savedFavorites) {
-    //     try {
-    //         return JSON.parse(savedFavorites) as ProductType[];
-    //     } catch (error) {
-    //         console.error('Failed to parse favorites from localStorage:', error);
-    //         return [];
-    //     }
-    // }
-    return [];
-};
-
-const initialFavorites = loadFavoritesFromLocalStorage();
 const initialState = {
-    favorites: initialFavorites,
-    favoritesCount: initialFavorites.length,
+    favorites: [] as ProductType[],
+    favoritesCount: 0,
+    isLoading: false,
 };
+
+export const postFavoriteAsync = createAsyncThunk(
+    'favorites/postFavorite',
+    async (product: ProductType, {rejectWithValue}) => {
+        try {
+            await postFavorites(Number(product.id));
+            return product;
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || error.message || 'An unknown error occurred';
+            return rejectWithValue(errorMessage);
+        }
+    }
+);
+
+export const deleteFavoriteAsync = createAsyncThunk(
+    'favorites/deleteFavorite',
+    async (product: ProductType, {rejectWithValue}) => {
+        try {
+            await deleteFavorites(Number(product.id));
+            return product;
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || error.message || 'An unknown error occurred';
+            return rejectWithValue(errorMessage);
+        }
+    }
+);
 
 export const favoritesSlice = createSlice({
     name: 'favorites',
     initialState,
     reducers: {
         addFavorite: (state, action: PayloadAction<ProductType>) => {
-            const product = action.payload;
-            if (!state.favorites.some(favorite => favorite.id === product.id)) {
-                state.favorites.push(product);
+            //
+        },
+        addDefaultFavorites: (state, action: PayloadAction<ProductType[] | []>) => {
+            state.favorites = action.payload;
+            state.favoritesCount = action.payload.length;
+        }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(postFavoriteAsync.pending, (state: RootState, action) => {
+                state.isLoading = true;
+            })
+            .addCase(postFavoriteAsync.fulfilled, (state: RootState, action) => {
+                state.favorites.push(action.payload);
+                state.isLoading = false;
                 state.favoritesCount = state.favorites.length;
-                localStorage.setItem('favorites', JSON.stringify(state.favorites));
-            }else {
+            })
+            .addCase(postFavoriteAsync.rejected, (state: RootState, action) => {
+                state.isLoading = false;
+                console.error('Failed to post favorite:', action.payload);
+            })
+            .addCase(deleteFavoriteAsync.pending, (state: RootState, action) => {
+                state.isLoading = true;
+            })
+            .addCase(deleteFavoriteAsync.fulfilled, (state: RootState, action: PayloadAction<ProductType>) => {
                 state.favorites = state.favorites.filter(favorite => favorite.id !== action.payload.id);
                 state.favoritesCount = state.favorites.length;
-                localStorage.setItem('favorites', JSON.stringify(state.favorites));
-            }
-        },
-    }
+                state.isLoading = false;
+            })
+            .addCase(deleteFavoriteAsync.rejected, (state: RootState, action) => {
+                console.error('Failed to delete favorite:', action.payload);
+                state.isLoading = false;
+            });
+    },
 });
 
-export const { addFavorite } = favoritesSlice.actions;
+export const {addFavorite, addDefaultFavorites} = favoritesSlice.actions;
 export default favoritesSlice.reducer;

@@ -7,14 +7,16 @@ import "swiper/css";
 import "swiper/css/navigation";
 import {Navigation} from "swiper/modules";
 import {useDispatch, useSelector} from "react-redux";
-import {changePath, select} from "@/store/features/categorySlice";
+import {changePath, fetchCategory, select} from "@/store/features/categorySlice";
 import Link from "next/link";
 import {LinksSlide} from "@/components/landing/linksSlide";
 import Image from "next/image";
 import {RootState} from "@/store/store";
 import {useImageSrc} from "@/hooks/src";
+import Loading from "@/app/Loading";
 
-const Landing: React.FC<{ categories: CategoryProps[] }> = ({categories}) => {
+const Landing: React.FC = () => {
+    const categories = useSelector((state: RootState) => state.categories.categories);
     const ref = useRef<SwiperType | null>(null);
     const dispatch = useDispatch();
     const slideIndex = useSelector((state: RootState) => state.categories.selectedCategory);
@@ -24,7 +26,8 @@ const Landing: React.FC<{ categories: CategoryProps[] }> = ({categories}) => {
         }
     });
     useEffect(() => {
-        dispatch(changePath('home'))
+        dispatch(fetchCategory());
+        dispatch(changePath('home'));
     }, []);
 
     function hasChildren(category: CategoryProps): CategoryProps[] {
@@ -42,6 +45,9 @@ const Landing: React.FC<{ categories: CategoryProps[] }> = ({categories}) => {
         return children;
     }
 
+    if (categories === undefined) {
+        return <><Loading/></>;
+    }
     return (
         <Fragment>
             <Swiper

@@ -1,9 +1,10 @@
 import {setColorsFilter} from "@/store/features/filterSlice";
 import React, {Fragment, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {ColorType} from "@/types";
 import {AnimatePresence, motion} from "framer-motion";
 import {BtnPrimary} from "@/components/default/buttons";
+import {RootState} from "@/store/store";
 
 export const Color = ({color, checked, handleColorChange}: {
     color: ColorType,
@@ -33,7 +34,7 @@ export const Colors = ({allColors, selectedFilter, showColor, toggleColor}: {
 }) => {
     const [selectedColors, setSelectedColors] = useState<Set<number>>(new Set(selectedFilter.colors));
     const dispatch = useDispatch();
-
+    const hasColor = useSelector((state: RootState) => state.filter.selectedFilter.colors.length > 0);
     useEffect(() => {
         setSelectedColors(new Set(selectedFilter.colors));
     }, [selectedFilter]);
@@ -75,7 +76,7 @@ export const Colors = ({allColors, selectedFilter, showColor, toggleColor}: {
                             <BtnPrimary className={'w-full justify-center border-none'}
                                         onClick={toggleColor}>اعمال</BtnPrimary>
                             <hr className={'h-10 w-0.5 bg-black border-l border-black'}/>
-                            <BtnPrimary disabled={Boolean(selectedColors.values === 0 ) }
+                            <BtnPrimary disabled={!Boolean(hasColor)}
                                         className={'w-full justify-center border-none'}
                                         onClick={handleResetSize}>حذف</BtnPrimary>
                         </div>

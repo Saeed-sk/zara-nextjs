@@ -1,9 +1,4 @@
 
-
-export const metadata = {
-    title: 'ZARA - داشبورد ',
-}
-
 const Dashboard = () => {
     return (
         <>

@@ -9,7 +9,7 @@ export const Attribute = ({attribute, checked, handleAttributeChange}: {
     handleAttributeChange: (attributeId: number) => void,
 }) => {
     return (
-        <label className={`cursor-pointer ${checked && 'font-semibold'}`} key={attribute.id}>
+        <label className={`cursor-pointer border px-1 ${checked ? 'font-semibold border-black' : 'border-gray-300'}`} key={attribute.id}>
                         <input
                             hidden
                             type="checkbox"

@@ -1,13 +1,14 @@
 import { getProduct } from "@/api/getProduct";
 import { ProductType } from "@/types";
-import { ShowCollectionProduct, ShowSingleProduct } from "@/components/products/show/showProduct";
+import {AddCartSingle} from "@/components/products/addCart/single";
+import {AddCartCollection} from "@/components/products/addCart/collection";
 
 export default async function Page({ params }: any) {
     const id = params.product;
     const product: ProductType = await getProduct({ id })
     if (product.template === 'single') {
-        return <ShowSingleProduct product={product} />
+        return <AddCartSingle product={product} />
     } else {
-        return <ShowCollectionProduct product={product} />
+        return <AddCartCollection product={product} />
     }
 }

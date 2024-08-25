@@ -32,7 +32,7 @@ const FilterComponent: React.FC<FilterProps> = ({allColors, allSizes, allAttribu
             setShowPrice(false)
         }
     }
-
+    // TODO make it responsive
     function toggleSize() {
         setShowSize(!showSize)
         if (showColor) {

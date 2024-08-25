@@ -1,17 +1,10 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { UserType } from '@/types';
-import axios from '@/lib/axios';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {UserType} from '@/types';
 
-// Async thunk برای فچ کردن اطلاعات کاربر
-export const fetchUser = createAsyncThunk<UserType>('user/fetchUser', async () => {
-    const response = await axios.get<UserType>('/api/user');
-    return response.data;
-});
-
-// تعریف حالت اولیه state برای user
 interface UserState {
     user: UserType | null;
-    status: 'idle' | 'loading' | 'succeeded' | 'failed';
+    token: string | null;
+    status: 'idle' | 'loading' | 'failed';
     error: string | null;
 }
 
@@ -19,27 +12,28 @@ const initialState: UserState = {
     user: null,
     status: 'idle',
     error: null,
+    token:null
 };
 
-// Slice برای user
 export const userSlice = createSlice({
     name: 'user',
     initialState,
-    reducers: {},
-    extraReducers: (builder) => {
-        builder
-            .addCase(fetchUser.pending, (state) => {
-                state.status = 'loading';
-            })
-            .addCase(fetchUser.fulfilled, (state, action) => {
-                state.status = 'succeeded';
-                state.user = action.payload;
-            })
-            .addCase(fetchUser.rejected, (state, action) => {
-                state.status = 'failed';
-                state.error = action.error.message || 'Failed to fetch user';
-            });
+    reducers: {
+        setUser: (state, action: PayloadAction<UserType | null>) => {
+            state.user = action.payload;
+        },
+        setToken:(state,action :PayloadAction<string | null>)=>{
+            state.token = action.payload
+        },
+        setUserStatus: (state, action: PayloadAction<'idle' | 'loading' | 'failed'>) => {
+            state.status = action.payload;
+        },
+        setUserError: (state, action: PayloadAction<string | null>) => {
+            state.error = action.payload;
+        },
     },
 });
+
+export const {setUser, setUserStatus, setUserError} = userSlice.actions;
 
 export default userSlice.reducer;

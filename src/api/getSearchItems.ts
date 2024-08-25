@@ -13,8 +13,7 @@ export async function getSearchItems({ slug, query }: SearchParams) {
     });
     return response.data;
   } catch (error: any) {
-    throw new Error(`Error fetching products: ${error.message || error}`);
-    // console.log("Errpr fetching data : ", error.message);
-    // return null;
+    const errorMessage = error.response?.data?.message || error.message || 'An unknown error occurred';
+    throw new Error(`Error getting search products: ${errorMessage}`);
   }
 }

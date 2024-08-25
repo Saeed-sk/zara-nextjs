@@ -2,15 +2,11 @@ import React, {useState} from 'react';
 import {ProductType} from "@/types";
 import Link from "next/link";
 import Icons from '../icon';
-import {useMarked} from "@/hooks/favorites";
 import {useDispatch} from "react-redux";
-import {addFavorite} from "@/store/features/favoritesSlice";
 import {useImageSrc} from "@/hooks/src";
-import {AnimatePresence, motion} from "framer-motion";
-import {addBasket} from "@/store/features/basketSlice";
 import {useInBasket} from "@/hooks/bascket";
 import Image from "next/image";
-// TODO add size and color to basket and when add them to basket
+import AddFavorites from "@/components/products/addFavorites";
 export const ProductShowInGrid = ({product, slug, pageGrids, single}: {
     product: ProductType,
     slug: string,
@@ -18,10 +14,11 @@ export const ProductShowInGrid = ({product, slug, pageGrids, single}: {
     single: boolean
 }) => {
     let src;
-    if (product.images.length > 0) {
-        src = useImageSrc(product.images[0].src)
+    if (product?.images?.length > 0) {
+        if (product.images) {
+            src = useImageSrc(product.images[0].src)
+        }
     }
-    const isMarked = useMarked(product);
     const inBasket = useInBasket(product)
     const dispatch = useDispatch()
     return (
@@ -38,7 +35,7 @@ export const ProductShowInGrid = ({product, slug, pageGrids, single}: {
                         </Link>
                         <Image fill
                                className={'z-0 object-cover'}
-                               src={src} alt={product.title}
+                               src={src} alt={String(product?.title)}
                                sizes={'(width:100%)'}
                                priority
                         />
@@ -49,15 +46,11 @@ export const ProductShowInGrid = ({product, slug, pageGrids, single}: {
                                 <p>{product.title}</p>
                                 <p>{product.price} تومان</p>
                             </div>
-                            <button onClick={() => {
-                                dispatch(addFavorite(product))
-                            }} className={'text-sm ml-1'}>
-                                {isMarked ? <Icons name={'bookmarked'}/> : <Icons name={'bookmark'}/>}
-                            </button>
+                            <AddFavorites product={product}/>
                         </div>)}
                 </div>
             </div>
-            {!single && product.children.map((child, index) =>
+            {!single && product.children?.map((child, index) =>
                 <ProductShowInGrid key={index} product={child} slug={slug} pageGrids={pageGrids} single={true}/>
             )}
             {/* show product in grid end*/}
