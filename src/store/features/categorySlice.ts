@@ -9,6 +9,7 @@ interface Props {
     error: any;
     selectedCategory: number;
     path: string;
+    parentColor: string;
 }
 
 const initialState: Props = {
@@ -17,6 +18,7 @@ const initialState: Props = {
     error: null,
     selectedCategory: 0,
     path: 'home',
+    parentColor: '',
 };
 
 export const fetchCategory = createAsyncThunk<CategoryProps[], void>('category/fetchCategory', async () => {
@@ -32,6 +34,9 @@ export const categorySlice = createSlice({
         },
         changePath: (state, action: PayloadAction<string>) => {
             state.path = action.payload;
+        },
+        changeParentColor: (state, action: PayloadAction<string>) => {
+            state.parentColor = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -51,5 +56,5 @@ export const categorySlice = createSlice({
             });
     },
 });
-export const {select, changePath} = categorySlice.actions;
+export const {select,changeParentColor, changePath} = categorySlice.actions;
 export default categorySlice.reducer;

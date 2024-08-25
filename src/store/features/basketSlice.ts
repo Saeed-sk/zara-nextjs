@@ -14,6 +14,7 @@ interface Props {
     basketShow: boolean;
     totalPrice: number;
     isLoading: boolean;
+    totalDiscount: number;
 }
 
 const initialState: Props = {
@@ -22,6 +23,7 @@ const initialState: Props = {
     basketShow: false,
     totalPrice: 0,
     isLoading: false,
+    totalDiscount:0
 };
 
 export const postFullBasket = createAsyncThunk(
@@ -64,7 +66,7 @@ export const postProductToBasket = createAsyncThunk(
 );
 
 export const deleteProductFromBasket = createAsyncThunk(
-    'baskets/deleteProductFromBasket', // Corrected action type
+    'baskets/deleteProductFromBasket',
     async ({product, total_price}: { product: BasketType, total_price: number }, {rejectWithValue}) => {
         try {
             const response = await deleteProductFromBasketApi(product, total_price);
@@ -109,6 +111,16 @@ export const basketSlice = createSlice({
         setBasketShow: (state) => {
             state.basketShow = !state.basketShow;
         },
+        setTotalPrice: (state) => {
+            let total = 0;
+            let discount = 0;
+            state.baskets.forEach((basket) => {
+                total += Number(basket.price) * basket.quantity;
+                discount += Math.floor((Number(basket.price) * (basket.discount / 100)))* basket.quantity;
+            });
+            state.totalDiscount = discount;
+            state.totalPrice = total;
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -134,11 +146,11 @@ export const basketSlice = createSlice({
                 console.log('removed to basket',action.payload)
             })
             .addCase(deleteProductFromBasket.rejected, (state, action) => {
-                console.error('Failed to delete products from basket:', action.payload);
+                console.error('Failed to delete products from basket:', action.error);
                 state.isLoading = false;
             });
     },
 });
 
-export const {setBasketShow,addFullBasket, addBasket} = basketSlice.actions;
+export const {setBasketShow,setTotalPrice,addFullBasket, addBasket} = basketSlice.actions;
 export default basketSlice.reducer;

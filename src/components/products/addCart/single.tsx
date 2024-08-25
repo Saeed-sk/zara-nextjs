@@ -1,20 +1,34 @@
 'use client'
-import {ColorType, ProductType, SizeType} from "@/types";
+import {BasketType, ColorType, ProductType, SizeType} from "@/types";
 import React, {useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {changePath} from "@/store/features/categorySlice";
 import {useImageSrc} from "@/hooks/src";
 import {BtnPrimary} from "@/components/default/buttons";
 import Image from "next/image";
 import ProductSwiper from "@/components/products/addCart/productSwiper";
-import {addBasket} from "@/store/features/basketSlice";
+import {
+    addBasket,
+    postProductToBasket,
+    deleteProductFromBasket,
+    setTotalPrice
+} from "@/store/features/basketSlice";
+import {RootState} from "@/store/store";
+import InputLabel from "@/components/default/inputLabel";
 
 export const AddCartSingle = ({product}: { product: ProductType }) => {
+    const baskets:BasketType[] = useSelector((state:RootState) => state.basket.baskets);
     const [slideIndex, setSlideIndex] = useState(0);
-    const dispatch = useDispatch()
+    const totalPrice = useSelector((state: RootState) => state.basket.totalPrice);
+    const totalDiscount = useSelector((state: RootState) => state.basket.totalDiscount);
+    const dispatch = useDispatch();
     useEffect(() => {
         dispatch(changePath(''))
     }, []);
+    useEffect(() => {
+        dispatch(setTotalPrice())
+    }, [dispatch]);
+
 
     function imagePath({src}) {
         return useImageSrc(src)
@@ -24,26 +38,42 @@ export const AddCartSingle = ({product}: { product: ProductType }) => {
         setSlideIndex(index)
     }
 
-    const [basketItem, setBasketItem] = useState<ProductType>({
+    const [basketItem, setBasketItem] = useState<BasketType>({
         id: product.id,
-        colors: [],
+        title:product.title,
+        slug:product.slug,
+        color: undefined,
         images: product.images,
         price: product.price,
-        sizes: [],
+        size: undefined,
+        quantity:0,
+        discount:product.discount
     });
-
     function selectColor(color) {
-        setBasketItem({...basketItem, colors: [color]})
+        setBasketItem({...basketItem, color: color})
     }
 
     function selectSize(size) {
-        setBasketItem({...basketItem, sizes: [size]})
+        setBasketItem({...basketItem, size: size})
     }
-
+    function inBasket(product: BasketType): boolean {
+        return baskets.some(
+            (basket) =>
+                basket.id === product.id &&
+                basket.color?.id === product.color?.id &&
+                basket.size?.id === product.size?.id
+        );
+    }
     function addToBasket() {
-        if (basketItem.colors.length > 0 && basketItem.sizes.length > 0) {
+        const inItems = inBasket(basketItem)
+        if (basketItem.color?.id > 0 && basketItem.size?.id > 0) {
             dispatch(addBasket(basketItem))
-        }else {
+            if(!inItems){
+                dispatch(postProductToBasket({product :basketItem, total_price:20000}))
+            }else {
+                dispatch(deleteProductFromBasket({product :basketItem, total_price:80000}))
+            }
+        } else {
             alert('لطفا رنگ و سایز را انتخاب کنید')
         }
     }
@@ -68,17 +98,17 @@ export const AddCartSingle = ({product}: { product: ProductType }) => {
                             {product?.colors?.map((color, index) => {
                                 return (
                                     <button onClick={() => selectColor(color)} key={index}
-                                            className={`w-10 aspect-square border p-2 ${basketItem?.colors?.some((item:ColorType) => item.id === color.id) ? 'border-black' : 'border-gray-200'}`}>
+                                            className={`w-10 aspect-square border p-2 ${basketItem.color?.id === color.id ? 'border-black' : 'border-gray-200'}`}>
                                         <div className={'w-full h-full'} style={{backgroundColor: color.color}}></div>
                                     </button>
                                 )
                             })}
                         </div>
-                        <div>
+                        <div >
                             {product.sizes?.map((size, index) => {
                                 return (
                                     <button onClick={() => selectSize(size)} key={index}
-                                            className={`w-10 aspect-square border p-2 ${basketItem.sizes?.some((item: SizeType) => item.id === size.id) ? 'border-black' : 'border-gray-200'}`}>
+                                            className={`w-10 aspect-square border p-2 ${basketItem.size?.id === size.id ? 'border-black' : 'border-gray-200'}`}>
                                         <div>
                                             <span>{size.size}</span>
                                         </div>
@@ -86,14 +116,28 @@ export const AddCartSingle = ({product}: { product: ProductType }) => {
                                 )
                             })}
                         </div>
+                        <div className={"flex px-10"}>
+                            <InputLabel className={'w-1/3'} htmlFor={'quantity'}>
+                                تعداد :
+                            </InputLabel>
+                            <input
+                                type="number"
+                                id={'quantity'}
+                                name={'quantity'}
+                                value={basketItem.quantity}
+                                onChange={(event)=>setBasketItem({...basketItem, quantity:event.target.valueAsNumber})}
+                                className="w-full text-center border border-gray-300"
+                            />
+                        </div>
                     </div>
-                    <BtnPrimary disabled={Boolean(basketItem.colors?.length === 0 || basketItem.sizes?.length === 0)} onClick={() => addToBasket()} className={'border-x-0 border-b-0 w-full justify-center'}>
+                    <BtnPrimary disabled={Boolean(!basketItem.color?.id || !basketItem.size?.id)}
+                                onClick={() => addToBasket()} className={'border-x-0 border-b-0 w-full justify-center'}>
                         اضافه کردن
                     </BtnPrimary>
                 </div>
                 <div className={'flex gap-3 items-end'}>
                     <div>
-                        {product.images.map((image, index) => {
+                        {product?.images?.map((image, index) => {
                             return (
                                 <div key={index}
                                      className={`relative w-10 aspect-product cursor-pointer ${index === slideIndex ? 'opacity-100' : 'opacity-60'}`}

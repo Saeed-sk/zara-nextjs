@@ -68,6 +68,9 @@ export const useAuth = ({
           const size = basket.sizes.find((size) => size.id === basket.pivot.size_id);
           baskets.push({
             id: basket.id,
+            title:basket.title,
+            slug:basket.slug,
+            discount:basket.discount,
             color: color,
             size: size,
             images: basket.images,

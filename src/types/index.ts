@@ -111,6 +111,7 @@ export interface BasketType {
     id: number;
     title?: string;
     discount?: string;
+    slug?: string;
     price?: string;
     color?: {
         id: number;
