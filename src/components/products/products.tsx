@@ -1,5 +1,5 @@
 "use client";
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {ProductShowInGrid} from "@/components/products/product";
 import {getProducts} from "@/api/getProducts";
 import {AttributeType, ColorType} from "@/types";
@@ -32,14 +32,13 @@ export const Products = ({slug, attrs}: { slug: string; attrs: AttrType }) => {
     }, [attrs, dispatch]);
 
     useEffect(() => {
-        fetchPosts();
         dispatch(changePath('product'))
-    }, [slug]);
+    }, [dispatch]);
 
-    const fetchPosts = async () => {
+    const fetchPosts = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await getProducts({slug, page});
+            const data = await getProducts({ slug, page });
             setHasMore(data.pagination.currentPage < data.pagination.lastPage);
             setPage(prevPage => prevPage + 1);
             dispatch(setProducts(page === 1 ? data.products : [...products, ...data.products]));
@@ -48,7 +47,13 @@ export const Products = ({slug, attrs}: { slug: string; attrs: AttrType }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [dispatch, page, products, slug]);
+
+    useEffect(() => {
+        if (hasMore && !loading) {
+            fetchPosts();
+        }
+    }, [fetchPosts, hasMore, loading]);
 
     return (
         <>
@@ -60,9 +65,9 @@ export const Products = ({slug, attrs}: { slug: string; attrs: AttrType }) => {
                 endMessage={<p className="w-full text-center text-red-800 my-3">تمام محصولات را مشاهده کردید</p>}
             >
                 <motion.section
-                    initial={{opacity: 0,y:30}}
-                    animate={{opacity: 1,y:0}}
-                    transition={{duration:0.3, ease: 'easeIn'}}
+                    initial={{opacity: 0, y: 30}}
+                    animate={{opacity: 1, y: 0}}
+                    transition={{duration: 0.3, ease: 'easeIn'}}
                     className={`w-full mx-auto grid ${pageGrids === 12 && 'grid-cols-4 sm:grid-cols-12'} ${pageGrids === 6 && 'grid-cols-2 sm:grid-cols-6'} ${pageGrids === 4 && 'grid-cols-2 sm:grid-cols-4 gap-4'}`}
                 >
                     {filteredProducts.map((product, index) => {

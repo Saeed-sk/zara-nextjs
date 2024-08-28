@@ -3,7 +3,7 @@ import {BasketType, ColorType, ProductType, SizeType} from "@/types";
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {changePath} from "@/store/features/categorySlice";
-import {useImageSrc} from "@/hooks/src";
+import {getImageSrc} from "@/hooks/src";
 import {BtnPrimary} from "@/components/default/buttons";
 import Image from "next/image";
 import ProductSwiper from "@/components/products/addCart/productSwiper";
@@ -11,30 +11,27 @@ import {
     addBasket,
     postProductToBasket,
     deleteProductFromBasket,
-    setTotalPrice
 } from "@/store/features/basketSlice";
-import {RootState} from "@/store/store";
+import {AppDispatch, RootState} from "@/store/store";
 import InputLabel from "@/components/default/inputLabel";
+import {InputNumber} from "@/components/default/InputNumber";
 
 export const AddCartCollection = ({product}: { product: ProductType }) => {
     const baskets:BasketType[] = useSelector((state:RootState) => state.basket.baskets);
     const [slideIndex, setSlideIndex] = useState(0);
     const totalPrice = useSelector((state: RootState) => state.basket.totalPrice);
     const totalDiscount = useSelector((state: RootState) => state.basket.totalDiscount);
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     useEffect(() => {
         dispatch(changePath(''))
-    }, []);
-    useEffect(() => {
-        dispatch(setTotalPrice())
     }, [dispatch]);
 
 
-    function imagePath({src}) {
-        return useImageSrc(src)
+    function imagePath({src}: { src: string }) {
+        return getImageSrc(src)
     }
 
-    function changeSlide(index) {
+    function changeSlide(index:number) {
         setSlideIndex(index)
     }
 
@@ -49,11 +46,11 @@ export const AddCartCollection = ({product}: { product: ProductType }) => {
         quantity:0,
         discount:product.discount
     });
-    function selectColor(color) {
+    function selectColor(color:ColorType) {
         setBasketItem({...basketItem, color: color})
     }
 
-    function selectSize(size) {
+    function selectSize(size:SizeType) {
         setBasketItem({...basketItem, size: size})
     }
     function inBasket(product: BasketType): boolean {
@@ -66,7 +63,7 @@ export const AddCartCollection = ({product}: { product: ProductType }) => {
     }
     function addToBasket() {
         const inItems = inBasket(basketItem)
-        if (basketItem.color?.id > 0 && basketItem.size?.id > 0) {
+        if (basketItem?.color?.id && basketItem?.size?.id) {
             dispatch(addBasket(basketItem))
             if(!inItems){
                 dispatch(postProductToBasket({product :basketItem, total_price:20000}))
@@ -78,9 +75,13 @@ export const AddCartCollection = ({product}: { product: ProductType }) => {
         }
     }
 
+    function onChangeQuantity(quantity: number) {
+        setBasketItem({...basketItem, quantity: quantity})
+    }
+
     return (
         <>
-            <section className={'grid grid-cols-1 sm:grid-cols-3 h-full p-14 gap-5 mx-auto max-w-[1280px]'}>
+            <section className={'grid grid-cols-1 md:grid-cols-3 h-full p-14 gap-5 mx-auto max-w-[1280px]'}>
                 <div className={'col-span-1 border border-black mx-10 mb-10 flex flex-col justify-between'}>
                     <div className={'p-10 max-h-full'}>
                         <h4 className={''}>{product.title}</h4>
@@ -120,14 +121,7 @@ export const AddCartCollection = ({product}: { product: ProductType }) => {
                             <InputLabel className={'w-1/3'} htmlFor={'quantity'}>
                                    تعداد :
                             </InputLabel>
-                            <input
-                                type="number"
-                                id={'quantity'}
-                                name={'quantity'}
-                                value={basketItem.quantity}
-                                onChange={(event)=>setBasketItem({...basketItem, quantity:event.target.valueAsNumber})}
-                                className="w-full text-center border border-gray-300"
-                            />
+                            <InputNumber product={basketItem} onChangeQuantity={onChangeQuantity}/>
                         </div>
                     </div>
                     <BtnPrimary disabled={Boolean(!basketItem.color?.id || !basketItem.size?.id)}

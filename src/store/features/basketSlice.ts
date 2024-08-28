@@ -23,14 +23,14 @@ const initialState: Props = {
     basketShow: false,
     totalPrice: 0,
     isLoading: false,
-    totalDiscount:0
+    totalDiscount: 0
 };
 
 export const postFullBasket = createAsyncThunk(
     'baskets/postFullBasket',
-    async (products: BasketType[], {rejectWithValue}) => {
+    async ({products, total_price}: { products: BasketType[], total_price: number }, {rejectWithValue}) => {
         try {
-            const response = await postFullBasketApi(products);
+            const response = await postFullBasketApi(products, total_price);
             return response;
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || error.message || 'An unknown error occurred';
@@ -65,12 +65,12 @@ export const postProductToBasket = createAsyncThunk(
     }
 );
 
-export const deleteProductFromBasket = createAsyncThunk(
+export const deleteProductFromBasket = createAsyncThunk<void, { product: BasketType, total_price: number }>(
     'baskets/deleteProductFromBasket',
-    async ({product, total_price}: { product: BasketType, total_price: number }, {rejectWithValue}) => {
+    async ({product, total_price}, {rejectWithValue}) => {
         try {
-            const response = await deleteProductFromBasketApi(product, total_price);
-            return response;
+            await deleteProductFromBasketApi(product, total_price);
+            return;
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || error.message || 'An unknown error occurred';
             return rejectWithValue(errorMessage);
@@ -97,60 +97,77 @@ export const basketSlice = createSlice({
                         basket.color.id !== product.color?.id ||
                         basket.size.id !== product.size?.id
                 );
+                state.totalDiscount -= Math.floor((Number(product.price) * (product.discount / 100)));
+                state.totalPrice -= Number(product.price);
                 state.basketsCount = state.baskets.length;
+
             } else {
                 state.baskets.push(product);
                 state.basketsCount = state.baskets.length;
+                state.totalDiscount += Math.floor((Number(product.price) * (product.discount / 100)));
+                state.totalPrice += Number(product.price);
             }
         },
         addFullBasket: (state, action: PayloadAction<BasketType[]>): void => {
             const products = action.payload;
             state.baskets = products;
             state.basketsCount = products.length;
+            state.totalPrice = 0
+            state.totalDiscount = 0
+            state.baskets.forEach((basket) => {
+                state.totalPrice += Number(basket.price) * basket.quantity;
+                state.totalDiscount += Math.floor((Number(basket.price) * (basket.discount / 100))) * basket.quantity;
+            });
         },
         setBasketShow: (state) => {
             state.basketShow = !state.basketShow;
         },
         setTotalPrice: (state) => {
-            let total = 0;
-            let discount = 0;
             state.baskets.forEach((basket) => {
-                total += Number(basket.price) * basket.quantity;
-                discount += Math.floor((Number(basket.price) * (basket.discount / 100)))* basket.quantity;
+                state.totalPrice += Number(basket.price) * basket.quantity;
+                state.totalDiscount += Math.floor((Number(basket.price) * (basket.discount / 100))) * basket.quantity;
             });
-            state.totalDiscount = discount;
-            state.totalPrice = total;
+        },
+        changeQuantity: (state, action: PayloadAction<{ product: BasketType, quantity: number }>) => {
+            const {product, quantity} = action.payload;
+            const index = state.baskets.findIndex((basket) => basket.id === product.id && basket.color?.id === product.color?.id && basket.size?.id === product.size?.id);
+            if (index !== -1) {
+                state.baskets[index].quantity = quantity;
+                state.basketsCount = state.baskets.length;
+                state.totalPrice = 0
+                state.totalDiscount = 0
+                state.baskets.forEach((basket) => {
+                    state.totalPrice += Number(basket.price) * basket.quantity;
+                    state.totalDiscount += Math.floor((Number(basket.price) * (basket.discount / 100))) * basket.quantity;
+                });
+            }
         }
     },
     extraReducers: (builder) => {
         builder
-            .addCase(postProductToBasket.pending, (state) => {
+            .addCase(postProductToBasket.pending, (state:RootState) => {
                 state.isLoading = true;
             })
-            .addCase(postProductToBasket.fulfilled, (state, action) => {
-                // state.baskets.push(action.payload);
+            .addCase(postProductToBasket.fulfilled, (state:RootState, action) => {
                 state.isLoading = false;
-                // state.basketsCount = state.baskets.length; // Corrected field
-                console.log('add to basket',action.payload)
+                console.log('added to basket', action.payload)
             })
-            .addCase(postProductToBasket.rejected, (state, action) => {
+            .addCase(postProductToBasket.rejected, (state:RootState, action) => {
                 state.isLoading = false;
                 console.error('Failed to post product to basket:', action.payload);
             })
-            .addCase(deleteProductFromBasket.pending, (state) => {
+            .addCase(deleteProductFromBasket.pending, (state:RootState) => {
                 state.isLoading = true;
             })
             .addCase(deleteProductFromBasket.fulfilled, (state: RootState, action) => {
-                state.baskets = state.baskets.filter(basket => basket.id !== action.payload.id || basket.color?.id !== action.payload.color?.id || basket.size?.id !== action.payload.size?.id);
-                state.basketsCount = state.baskets.length;
-                console.log('removed to basket',action.payload)
+                console.log('removed to basket', action.payload)
             })
-            .addCase(deleteProductFromBasket.rejected, (state, action) => {
+            .addCase(deleteProductFromBasket.rejected, (state:RootState, action: PayloadAction<any>) => {
                 console.error('Failed to delete products from basket:', action.error);
                 state.isLoading = false;
             });
     },
 });
 
-export const {setBasketShow,setTotalPrice,addFullBasket, addBasket} = basketSlice.actions;
+export const {setBasketShow,changeQuantity, setTotalPrice, addFullBasket, addBasket} = basketSlice.actions;
 export default basketSlice.reducer;

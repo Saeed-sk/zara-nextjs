@@ -1,11 +1,10 @@
 'use client'
 
-import InputError from '@/components/default/InputError'
+import {ErrorInputText} from '@/components/default/ErrorInputText'
 import { useAuth } from '@/hooks/auth'
 import { useState, ChangeEvent, FormEvent } from 'react'
 import InputText from "@/components/default/inputText";
 import { BtnPrimary } from "@/components/default/buttons";
-import { ErrorsType } from '@/types';
 
 const Page = () => {
     const { register } = useAuth({
@@ -24,7 +23,7 @@ const Page = () => {
         event.preventDefault();
         setLoading(true)
         register({
-            remember: false,
+            remember: true,
             name,
             phone,
             password,
@@ -46,7 +45,7 @@ const Page = () => {
                         onChange={(event: ChangeEvent<HTMLInputElement>) => setName(event.target.value)}
                         required
                     />
-                    {errors?.name && <InputError messages={errors.name} className="mt-2" />}
+                    {errors?.name && <ErrorInputText messages={errors.name} className="mt-2" />}
                 </div>
 
 
@@ -60,7 +59,7 @@ const Page = () => {
                         onChange={(event: ChangeEvent<HTMLInputElement>) => setPhone(event.target.value)}
                         required
                     />
-                    {errors?.phone && <InputError messages={errors.phone} className="mt-2" />}
+                    {errors?.phone && <ErrorInputText messages={errors.phone} className="mt-2" />}
                 </div>
 
                 {/* Password */}
@@ -73,7 +72,7 @@ const Page = () => {
                         onChange={(event: ChangeEvent<HTMLInputElement>) => setPassword(event.target.value)}
                         required
                     />
-                    {errors?.password && <InputError messages={errors.password} className="mt-2" />}
+                    {errors?.password && <ErrorInputText messages={errors.password} className="mt-2" />}
                 </div>
 
                 {/* Confirm Password */}
@@ -86,7 +85,7 @@ const Page = () => {
                         onChange={(event: ChangeEvent<HTMLInputElement>) => setPasswordConfirmation(event.target.value)}
                         required
                     />
-                    {errors?.password_confirmation && <InputError messages={errors.password_confirmation} className="mt-2" />}
+                    {errors?.password_confirmation && <ErrorInputText messages={errors.password_confirmation} className="mt-2" />}
                 </div>
 
                 <BtnPrimary disabled={loading} className="w-full justify-center" type="submit">

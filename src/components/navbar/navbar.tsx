@@ -22,14 +22,14 @@ const Navbar = () => {
 
     useEffect(() => {
         dispatch(fetchCategory())
-    }, []);
+    }, [dispatch]);
     useEffect(() => {
         if (pathName === '/') {
             dispatch(changePath('home'))
         } else if (pathName === '/dashboard' || pathName === '/login' || pathName === '/register' || pathName === '/help' || pathName === '/cart') {
             dispatch(changePath(''))
         }
-    }, [pathName]);
+    }, [pathName,dispatch]);
 
     function handleOutsideClick() {
         setOpen(false)
@@ -102,7 +102,6 @@ const Navbar = () => {
                     {!open && path === 'product' && (
                         <motion.div initial={{opacity: 0}} animate={{opacity: 1}} exit={{opacity: 0}}
                                     className={'flex flex-wrap gap-3 py-4 mx-5'}>
-                            {/*TODO add filters to product page*/}
                             <FilterProducts min={minPrice} max={maxPrice} allColors={allColors} allSizes={allSizes} allAttributes={allAttributes}/>
                         </motion.div>
                     )}
@@ -117,8 +116,14 @@ const Navbar = () => {
                             {open && <Icon name={'close'}/>}
                             {!open && <Icon name={'menu'}/>}
                         </button>
-
+                        {path ==='product' && (
+                            <motion.div initial={{opacity: 0}} animate={{opacity: 1}} exit={{opacity: 0}}
+                                        className={'flex flex-wrap self-end text-sm'}>
+                                <FilterProducts min={minPrice} max={maxPrice} allColors={allColors} allSizes={allSizes} allAttributes={allAttributes}/>
+                            </motion.div>
+                        )}
                     </li>
+
                     <NavLinksMoblie path={path}/>
                 </ul>
                 {

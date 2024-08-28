@@ -5,7 +5,7 @@ import {FormEvent, useEffect, useState} from 'react'
 import AuthSessionStatus from '@/app/(auth)/AuthSessionStatus'
 import InputText from "@/components/default/inputText";
 import {BtnPrimary} from "@/components/default/buttons";
-import InputError from '@/components/default/InputError'
+import {ErrorInputText} from '@/components/default/ErrorInputText'
 import {useRouter, useSearchParams} from "next/navigation";
 
 const Login = () => {
@@ -17,9 +17,9 @@ const Login = () => {
     const searchParams = useSearchParams();
     const [phone, setPhone] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [shouldRemember, setShouldRemember] = useState<boolean>(false);
+    const [shouldRemember, setShouldRemember] = useState<boolean>(true);
     const [errors, setErrors] = useState<any>({});
-    const [status, setStatus] = useState<string>('');
+    const [status, setStatus] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     useEffect(() => {
         const resetParam = searchParams.get("reset");
@@ -40,7 +40,7 @@ const Login = () => {
             password,
             remember: shouldRemember,
             setErrors,
-            setStatus,
+            setStatus
         }).then(() => setLoading(false));
 
     };
@@ -59,7 +59,7 @@ const Login = () => {
                             onChange={event => setPhone(event.target.value)}
                             required
                         />
-                        {errors?.phone && <InputError messages={errors.phone} className="mt-2"/>}
+                        {errors?.phone && <ErrorInputText messages={errors.phone} className="mt-2"/>}
                     </div>
 
                     <div className="mt-4">
@@ -72,7 +72,7 @@ const Login = () => {
                             autoComplete="current-password"
                             label="رمز عبور"
                         />
-                        {errors?.password && <InputError messages={errors.password} className="mt-2"/>}
+                        {errors?.password && <ErrorInputText messages={errors.password} className="mt-2"/>}
                     </div>
 
                     {/* Remember Me Checkbox */}

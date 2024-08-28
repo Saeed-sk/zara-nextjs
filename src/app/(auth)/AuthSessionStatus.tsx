@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface AuthSessionStatusProps extends React.HTMLAttributes<HTMLDivElement> {
-    status?: string;
+    status: string | null;
     className?: string;
 }
 

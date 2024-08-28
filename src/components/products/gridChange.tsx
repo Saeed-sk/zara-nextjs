@@ -1,12 +1,12 @@
 import Icons from "@/components/icon";
 import React from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "@/store/store";
+import {AppDispatch, RootState} from "@/store/store";
 import {setGrid} from "@/store/features/gridSlice";
 
 export const GridChange = ({classes}: { classes?: string }) => {
     const pageGrids = useSelector((state: RootState) => state.gridStore.grid);
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     return (
         <div className={`flex justify-start text-xl ${classes} `}>
             <div className="flex gap-2">

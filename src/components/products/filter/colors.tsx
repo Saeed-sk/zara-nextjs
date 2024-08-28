@@ -4,7 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {ColorType} from "@/types";
 import {AnimatePresence, motion} from "framer-motion";
 import {BtnPrimary} from "@/components/default/buttons";
-import {RootState} from "@/store/store";
+import {AppDispatch, RootState} from "@/store/store";
 
 export const Color = ({color, checked, handleColorChange}: {
     color: ColorType,
@@ -33,11 +33,11 @@ export const Colors = ({allColors, selectedFilter, showColor, toggleColor}: {
     toggleColor: () => void
 }) => {
     const [selectedColors, setSelectedColors] = useState<Set<number>>(new Set(selectedFilter.colors));
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const hasColor = useSelector((state: RootState) => state.filter.selectedFilter.colors.length > 0);
     useEffect(() => {
         setSelectedColors(new Set(selectedFilter.colors));
-    }, [selectedFilter]);
+    }, [selectedFilter,dispatch]);
 
     const handleResetSize = () => {
         setSelectedColors(new Set());
@@ -56,33 +56,27 @@ export const Colors = ({allColors, selectedFilter, showColor, toggleColor}: {
             return updatedColors;
         });
     };
-    return (
-        <Fragment>
-            {showColor && (
-                <AnimatePresence>
-                    <motion.div initial={{opacity: 0, y: 30}} animate={{opacity: 1, y: 0}} exit={{opacity: 0, x: -100}}
-                                transition={{duration: 0.1}}
-                                className={'flex flex-col absolute w-96 bg-gray-50 border top-full border-black'}>
-                        <div className="flex gap-1 p-3 max-h-full flex-wrap">
-                            {allColors?.map(color => {
-                                return (
-                                    <Color key={color.id} color={color} handleColorChange={handleColorChange}
-                                           checked={selectedColors.has(color.id)}/>
-                                )
-                            })}
-                        </div>
-                        <hr className={'border-black my-4'}/>
-                        <div className={'w-full flex border-t border-black'}>
-                            <BtnPrimary className={'w-full justify-center border-none'}
-                                        onClick={toggleColor}>اعمال</BtnPrimary>
-                            <hr className={'h-10 w-0.5 bg-black border-l border-black'}/>
-                            <BtnPrimary disabled={!Boolean(hasColor)}
-                                        className={'w-full justify-center border-none'}
-                                        onClick={handleResetSize}>حذف</BtnPrimary>
-                        </div>
-                    </motion.div>
-                </AnimatePresence>
-            )}
-        </Fragment>
-    )
+    if (showColor){
+        return (
+            <Fragment>
+                <div className="flex gap-1 p-3 max-h-full flex-wrap">
+                    {allColors?.map(color => {
+                        return (
+                            <Color key={color.id} color={color} handleColorChange={handleColorChange}
+                                   checked={selectedColors.has(color.id)}/>
+                        )
+                    })}
+                </div>
+                <hr className={'border-black my-4'}/>
+                <div className={'w-full flex border-t border-black'}>
+                    <BtnPrimary className={'w-full justify-center border-none'}
+                                onClick={toggleColor}>اعمال</BtnPrimary>
+                    <hr className={'h-10 w-0.5 bg-black border-l border-black'}/>
+                    <BtnPrimary disabled={!Boolean(hasColor)}
+                                className={'w-full justify-center border-none'}
+                                onClick={handleResetSize}>حذف</BtnPrimary>
+                </div>
+            </Fragment>
+        )
+    }
 }

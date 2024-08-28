@@ -5,7 +5,7 @@ import 'swiper/css/scrollbar';
 import {Scrollbar} from 'swiper/modules';
 import {ImageType} from "@/types";
 import {Swiper as SwiperType} from "swiper";
-import {useImageSrc} from "@/hooks/src";
+import {getImageSrc} from "@/hooks/src";
 import Image from "next/image";
 
 const ProductSwiper = ({images, classes, slideIndex, changeSlide}: {
@@ -22,7 +22,7 @@ const ProductSwiper = ({images, classes, slideIndex, changeSlide}: {
     });
 
     function imagePath(src: string) {
-        return useImageSrc(src);
+        return getImageSrc(src);
     }
 
     return (

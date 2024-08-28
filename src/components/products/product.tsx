@@ -3,24 +3,24 @@ import {ProductType} from "@/types";
 import Link from "next/link";
 import Icons from '../icon';
 import {useDispatch} from "react-redux";
-import {useImageSrc} from "@/hooks/src";
+import {getImageSrc} from "@/hooks/src";
 import {useInBasket} from "@/hooks/bascket";
 import Image from "next/image";
 import AddFavorites from "@/components/products/addFavorites";
+import {AppDispatch} from "@/store/store";
 export const ProductShowInGrid = ({product, slug, pageGrids, single}: {
     product: ProductType,
     slug: string,
     pageGrids: number,
     single: boolean
 }) => {
-    let src;
-    if (product?.images?.length > 0) {
-        if (product.images) {
-            src = useImageSrc(product.images[0].src)
-        }
+    // TODO CHANGE SRC
+    let src = '';
+    if (product?.images?.length) {
+        src = getImageSrc(product.images[0].src);
     }
     const inBasket = useInBasket(product)
-    const dispatch = useDispatch()
+    const dispatch = useDispatch<AppDispatch>()
     return (
         <>
             {/* show product in grid start*/}

@@ -78,7 +78,7 @@ export interface PaginationType {
     to: number;
 }
 
-interface Pivot {
+export interface PivotType {
     basket_id: number;
     product_id: number;
     color_id: number;
@@ -93,16 +93,16 @@ export interface ProductType {
     parent_id?: number | null;
     description?: string;
     maintenance?: string;
-    slug?: string;
+    slug: string;
     discount?: string;
     price?: string;
     created_at?: string;
     updated_at?: string;
-    pivot: Pivot
+    pivot: PivotType
     attributes?: AttributeType[];
     colors: ColorType[] | [];
     sizes: SizeType[] | [];
-    images?: ImageType[];
+    images: ImageType[];
     children?: ProductType[];
     quantity?: number;
 }
@@ -127,7 +127,7 @@ export interface BasketType {
         updated_at: string;
     };
     images?: ImageType[];
-    quantity?: number;
+    quantity: number;
 }
 
 export interface UserType {
@@ -141,8 +141,9 @@ export interface UserType {
 }
 
 export interface LoginProps {
-    email: string;
+    phone: string;
     password: string;
+    remember: boolean;
     setErrors: (errors: any[]) => void;
     setStatus: (status: string | null) => void;
 }
@@ -152,8 +153,9 @@ export interface setErrors {
 
 export interface RegisterProps {
     name: string;
-    email: string;
+    phone: string;
     password: string;
+    remember: boolean;
     password_confirmation: string;
     setErrors: (errors: any[]) => void;
 }
@@ -161,4 +163,35 @@ export interface RegisterProps {
 export interface AuthProps {
     middleware?: "guest" | "auth";
     redirectIfAuthenticated?: string;
+}
+export interface BasketTypeFromServer {
+    id: number;
+    user_id: number;
+    total_price: number;
+    payment_status: 'unpaid' | 'paid' | 'pending';
+    created_at: string;
+    updated_at: string;
+    products: {
+        id: number;
+        template?: "single" | "collection";
+        title?: string;
+        slug: string;
+        discount: number;
+        price: string;
+        created_at?: string;
+        updated_at?: string;
+        pivot: PivotType;
+        attributes?: AttributeType[];
+        colors: ColorType[] | [];
+        sizes: SizeType[] | [];
+        images?: ImageType[];
+        children?: ProductType[];
+        quantity?: number;
+    }[];
+}
+
+export interface ResponseTypeAuth {
+    user: UserType,
+    favorites: ProductType[]| [],
+    baskets: BasketTypeFromServer[] | [],
 }

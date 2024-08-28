@@ -11,14 +11,14 @@ import {changePath, fetchCategory, select} from "@/store/features/categorySlice"
 import Link from "next/link";
 import {LinksSlide} from "@/components/landing/linksSlide";
 import Image from "next/image";
-import {RootState} from "@/store/store";
-import {useImageSrc} from "@/hooks/src";
+import {AppDispatch, RootState} from "@/store/store";
+import {getImageSrc} from "@/hooks/src";
 import Loading from "@/app/Loading";
 
 const Landing: React.FC = () => {
     const categories = useSelector((state: RootState) => state.categories.categories);
     const ref = useRef<SwiperType | null>(null);
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const slideIndex = useSelector((state: RootState) => state.categories.selectedCategory);
     useLayoutEffect(() => {
         if (ref.current) {
@@ -28,7 +28,7 @@ const Landing: React.FC = () => {
     useEffect(() => {
         dispatch(fetchCategory());
         dispatch(changePath('home'));
-    }, []);
+    }, [dispatch]);
 
     function hasChildren(category: CategoryProps): CategoryProps[] {
         let children: CategoryProps[] = [];
@@ -83,7 +83,7 @@ const Landing: React.FC = () => {
                                                         <Image
                                                             fill
                                                             className="h-full object-cover md:w-full"
-                                                            src={`${useImageSrc(banner.src)}`}
+                                                            src={`${getImageSrc(banner.src)}`}
                                                             // alt={banner.slug + ' عکس نمایه '}
                                                             alt={' عکس نمایه '}
                                                         />

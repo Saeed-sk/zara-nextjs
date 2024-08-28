@@ -50,7 +50,7 @@ export async function postProductToBasketApi(product: BasketType, total_price: n
     }
 }
 
-export async function deleteProductFromBasketApi(product: BasketType, total_price) {
+export async function deleteProductFromBasketApi(product: BasketType, total_price:number) {
     try {
         const response = await axios.post('/api/basket/product/remove', {
             product: product,

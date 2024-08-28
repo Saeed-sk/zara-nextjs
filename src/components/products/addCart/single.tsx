@@ -3,7 +3,7 @@ import {BasketType, ColorType, ProductType, SizeType} from "@/types";
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {changePath} from "@/store/features/categorySlice";
-import {useImageSrc} from "@/hooks/src";
+import {getImageSrc} from "@/hooks/src";
 import {BtnPrimary} from "@/components/default/buttons";
 import Image from "next/image";
 import ProductSwiper from "@/components/products/addCart/productSwiper";
@@ -11,9 +11,8 @@ import {
     addBasket,
     postProductToBasket,
     deleteProductFromBasket,
-    setTotalPrice
 } from "@/store/features/basketSlice";
-import {RootState} from "@/store/store";
+import {AppDispatch, RootState} from "@/store/store";
 import InputLabel from "@/components/default/inputLabel";
 
 export const AddCartSingle = ({product}: { product: ProductType }) => {
@@ -21,20 +20,17 @@ export const AddCartSingle = ({product}: { product: ProductType }) => {
     const [slideIndex, setSlideIndex] = useState(0);
     const totalPrice = useSelector((state: RootState) => state.basket.totalPrice);
     const totalDiscount = useSelector((state: RootState) => state.basket.totalDiscount);
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     useEffect(() => {
         dispatch(changePath(''))
-    }, []);
-    useEffect(() => {
-        dispatch(setTotalPrice())
     }, [dispatch]);
 
 
-    function imagePath({src}) {
-        return useImageSrc(src)
+    function imagePath({src}: { src: string }) {
+        return getImageSrc(src)
     }
 
-    function changeSlide(index) {
+    function changeSlide(index:number) {
         setSlideIndex(index)
     }
 
@@ -49,11 +45,11 @@ export const AddCartSingle = ({product}: { product: ProductType }) => {
         quantity:0,
         discount:product.discount
     });
-    function selectColor(color) {
+    function selectColor(color:ColorType) {
         setBasketItem({...basketItem, color: color})
     }
 
-    function selectSize(size) {
+    function selectSize(size:SizeType) {
         setBasketItem({...basketItem, size: size})
     }
     function inBasket(product: BasketType): boolean {
@@ -66,7 +62,7 @@ export const AddCartSingle = ({product}: { product: ProductType }) => {
     }
     function addToBasket() {
         const inItems = inBasket(basketItem)
-        if (basketItem.color?.id > 0 && basketItem.size?.id > 0) {
+        if (basketItem?.color?.id && basketItem?.size?.id) {
             dispatch(addBasket(basketItem))
             if(!inItems){
                 dispatch(postProductToBasket({product :basketItem, total_price:20000}))

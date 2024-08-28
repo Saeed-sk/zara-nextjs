@@ -14,7 +14,7 @@ export default forwardRef(function InputText(
         if (isFocused) {
             localRef.current?.focus();
         }
-    }, []);
+    }, [isFocused]);
 
     return (
         <div className={'relative z-0 w-full mb-5'}>

@@ -10,6 +10,7 @@ import {CiSearch} from "react-icons/ci";
 import {FaRegBookmark, FaBookmark} from "react-icons/fa";
 import {GoPlus} from "react-icons/go";
 import {MdAddShoppingCart} from "react-icons/md";
+import { LuMinus } from "react-icons/lu";
 
 type IconComponent = React.FC<{ className?: string }>;
 
@@ -51,6 +52,9 @@ const Icons: React.FC<Props> = ({classes = '', name}) => {
             break;
         case 'addBasket':
             DynamicComponent = MdAddShoppingCart;
+            break;
+        case 'minus':
+            DynamicComponent = LuMinus;
             break;
         case 'close':
             DynamicComponent = IoMdClose;

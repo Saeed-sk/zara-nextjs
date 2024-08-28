@@ -14,7 +14,7 @@ export default forwardRef(function InputSearch(
         if (isFocused) {
             localRef.current?.focus();
         }
-    }, []);
+    }, [isFocused]);
 
     return (
         <input
