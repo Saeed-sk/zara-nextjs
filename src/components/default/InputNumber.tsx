@@ -10,7 +10,7 @@ export const InputNumber = ({product, className, onChangeQuantity}: {
     const [quantity, setQuantity] = useState(product.quantity);
     useEffect(() => {
         onChangeQuantity(quantity)
-    }, [quantity]);
+    }, [quantity , onChangeQuantity]);
 
     function handleChange({value, type}: { value: number, type: string }) {
         if (type === 'plus') {

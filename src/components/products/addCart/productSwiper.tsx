@@ -19,7 +19,7 @@ const ProductSwiper = ({images, classes, slideIndex, changeSlide}: {
         if (ref.current) {
             ref?.current?.slideTo(slideIndex);
         }
-    });
+    },[slideIndex]);
 
     function imagePath(src: string) {
         return getImageSrc(src);

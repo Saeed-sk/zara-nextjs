@@ -15,28 +15,30 @@ export const Favorites: React.FC = () => {
         <motion.section
             initial={{opacity: 0, y: 10}}
             animate={{opacity: 1, y: 0}}
-            transition={{duration: 0.2 ,ease: 'easeIn'}}
-            className={'flex flex-wrap divide-x pt-1'}>
+            transition={{duration: 0.2, ease: 'easeIn'}}
+            className={'grid grid-cols-3 md:grid-cols-6 divide-black divide-y divide-x'}>
             {products.length > 0 &&
-                products.map((product:ProductType, index:number) => (<Favorite key={index} product={product} />))}
+                products.map((product: ProductType, index: number) => (
+                    <Favorite index={index} key={index} product={product}/>))}
             {products.length === 0 && <p className={'text-center w-full mt-10'}>موردی یافت نشد</p>}
         </motion.section>
     );
 }
-interface FavoriteProps {
-    product: ProductType;
-}
-export const Favorite:React.FC<FavoriteProps> = ({product}) => {
+
+export const Favorite: React.FC<{ product: ProductType, index: number }> = ({product,index}) => {
     const dispatch = useDispatch<AppDispatch>();
-    function handleDeleteFavorite(product: ProductType){
+
+    function handleDeleteFavorite(product: ProductType) {
         dispatch(addFavorite(product))
         dispatch(deleteFavoriteAsync(product))
     }
-    return(
-        <div className={'w-44 aspect-product relative border-[0.25px] border-black group'}>
+
+    return (
+        <div className={`aspect-product relative group border-b border-black ${index===0 && 'border-l'}`}>
             {product?.images && (
                 <div className={'w-full h-full relative'}>
-                    <Image sizes={'width(100%)'} fill priority className={'object-fill'} src={getImageSrc(product.images[0].src)} alt=""/>
+                    <Image sizes={'width(100%)'} fill priority className={'object-fill'}
+                           src={getImageSrc(product.images[0].src)} alt=""/>
                 </div>
             )}
             <button

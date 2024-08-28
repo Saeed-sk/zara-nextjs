@@ -1,11 +1,11 @@
-import { getCategories } from "@/api/getCategories";
-import { CategoryProps } from "@/types";
 import { Search } from "@/components/search/search";
+import {getSearchDefaults} from "@/api/searchApi";
 
 export default async function Home() {
+    const products = await getSearchDefaults();
     return (
         <main className={"w-full min-h-screen grid-cols-1"}>
-            <Search/>
+            <Search products={products}/>
         </main>
         
     );

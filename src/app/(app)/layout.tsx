@@ -7,7 +7,6 @@ import { RectFcChildren } from '@/types'
 
 const AppLayout: React.FC<RectFcChildren> = ({ children }) => {
     const { userData } = useAuth({ middleware: 'auth' })
-    console.log(userData)
     if (!userData) {
         return <Loading />
     }

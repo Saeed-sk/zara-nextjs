@@ -23,9 +23,9 @@ export const PriceRange = ({selectedFilter, showPrice, togglePrice, min, max}: {
         togglePrice();
     };
     const handleResetPriceChange = () => {
-        dispatch(setPriceRangeFilter({min, max}));
-        setMaxPrice(max)
-        setMinPrice(min)
+        dispatch(setPriceRangeFilter({ minPrice: min, maxPrice: max }));
+        setMaxPrice(max);
+        setMinPrice(min);
     };
 
     useEffect(() => {

@@ -2,7 +2,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {ProductShowInGrid} from "@/components/products/product";
 import {getProducts} from "@/api/getProducts";
-import {AttributeType, ColorType} from "@/types";
+import {AttributeType, ColorType, SizeType} from "@/types";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import {motion} from "framer-motion";
 import {useDispatch, useSelector} from "react-redux";
@@ -14,11 +14,12 @@ import {LoaderMd} from '../loader/loader';
 interface AttrType {
     allAttributes: AttributeType[];
     allColors: ColorType[];
-    allSizes: AttributeType[];
+    allSizes: SizeType[];
     minPrice: number;
     maxPrice: number;
 }
 
+// Example component usage
 export const Products = ({slug, attrs}: { slug: string; attrs: AttrType }) => {
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
@@ -27,12 +28,13 @@ export const Products = ({slug, attrs}: { slug: string; attrs: AttrType }) => {
     const filteredProducts = useSelector((state: RootState) => state.filter.filteredProducts);
     const products = useSelector((state: RootState) => state.filter.products);
     const pageGrids = useSelector((state: RootState) => state.gridStore.grid);
+
     useEffect(() => {
         dispatch(setInitialFilters(attrs));
     }, [attrs, dispatch]);
 
     useEffect(() => {
-        dispatch(changePath('product'))
+        dispatch(changePath('product'));
     }, [dispatch]);
 
     const fetchPosts = useCallback(async () => {
@@ -68,17 +70,18 @@ export const Products = ({slug, attrs}: { slug: string; attrs: AttrType }) => {
                     initial={{opacity: 0, y: 30}}
                     animate={{opacity: 1, y: 0}}
                     transition={{duration: 0.3, ease: 'easeIn'}}
-                    className={`w-full mx-auto grid ${pageGrids === 12 && 'grid-cols-4 sm:grid-cols-12'} ${pageGrids === 6 && 'grid-cols-2 sm:grid-cols-6'} ${pageGrids === 4 && 'grid-cols-2 sm:grid-cols-4 gap-4'}`}
+                    className={`w-full mx-auto grid divide-black mt-3 border-b border-black ${pageGrids === 12 && 'grid-cols-4 sm:grid-cols-12 divide-y divide-x'} ${pageGrids === 6 && 'grid-cols-2 sm:grid-cols-6 divide-y divide-x'} ${pageGrids === 4 && 'grid-cols-1 sm:grid-cols-4 gap-4'}`}
                 >
                     {filteredProducts.map((product, index) => {
-                        if (product.template === 'single') {
-                            return (
-                                <ProductShowInGrid single={true} key={index} pageGrids={pageGrids} slug={slug}
-                                                   product={product}/>)
-                        } else if (product.parent_id !== null && product.template === 'collection') {
-                            return (<ProductShowInGrid single={false} key={index} pageGrids={pageGrids} slug={slug}
-                                                       product={product}/>)
-                        }
+                        return (
+                            <ProductShowInGrid
+                                key={product.id}
+                                product={product}
+                                pageGrids={pageGrids}
+                                single={true}
+                                index={index}
+                            />
+                        );
                     })}
                 </motion.section>
             </InfiniteScroll>

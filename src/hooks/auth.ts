@@ -1,20 +1,19 @@
-// hooks/useAuth.ts
 import useSWR from 'swr';
 import axios from '@/lib/axios';
 import csrf from '@/lib/csrf';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import {useRouter} from 'next/navigation';
 import {
     LoginProps,
     RegisterProps,
     AuthProps,
     BasketType,
-    ResponseTypeAuth
+    ResponseTypeAuth, ColorType, SizeType, ImageType
 } from '@/types';
-import {useCallback, useEffect} from "react";
-import {setUser, setUserError, setUserStatus} from "@/store/features/userSlice";
-import {addDefaultFavorites} from "@/store/features/favoritesSlice";
-import {addFullBasket} from "@/store/features/basketSlice";
+import {useCallback, useEffect} from 'react';
+import {setUser, setUserError, setUserStatus} from '@/store/features/userSlice';
+import {addDefaultFavorites} from '@/store/features/favoritesSlice';
+import {addFullBasket} from '@/store/features/basketSlice';
 
 interface SwrResponse<T> {
     data: T | undefined;
@@ -22,6 +21,23 @@ interface SwrResponse<T> {
     mutate: () => void;
 }
 
+// Define the fetcher function
+const fetchUser = async (): Promise<ResponseTypeAuth> => {
+    try {
+        const res = await axios.get<ResponseTypeAuth>('/api/user');
+        return res.data;
+    } catch (error) {
+        // Manually check if the error is an Axios error
+        if (error && typeof error === 'object' && 'response' in error) {
+            const axiosError = error as { response?: { status?: number } };
+            if (axiosError.response?.status === 409) {
+                throw new Error('verify-email');
+            }
+        }
+        // Throw the error if it's not an Axios error or doesn't match the conditions
+        throw error;
+    }
+};
 
 export const useAuth = ({
                             middleware,
@@ -30,58 +46,48 @@ export const useAuth = ({
     const router = useRouter();
     const dispatch = useDispatch();
 
+    // Use useSWR with the fetcher function
     const {
         data: userData,
         error,
         mutate,
-    }: SwrResponse<ResponseTypeAuth> = useSWR('/api/user', () =>
-        axios
-            .get<ResponseTypeAuth>('/api/user')
-            .then((res) => {
-                return res.data
-            })
-            .catch((error) => {
-                if (error.response?.status === 409) {
-                    router.push('/verify-email');
-                } else {
-                    throw error;
-                }
-            })
-    );
+    }: SwrResponse<ResponseTypeAuth> = useSWR<ResponseTypeAuth>('/api/user', fetchUser);
 
     useEffect(() => {
+
         if (userData) {
             dispatch(setUser(userData.user));
             dispatch(addDefaultFavorites(userData.favorites));
-            let baskets: BasketType[] | [] = [];
-            if (userData.baskets.length) {
-                userData.baskets[0].products.forEach((basket) => {
-                    let color = {}
-                    let size = {}
-                    if (basket.pivot.color_id && basket.colors.length) {
-                        color = basket.colors.find((color) => color.id === basket.pivot.color_id);
-                    }
-                    size = basket.sizes.find((size) => size.id === basket.pivot.size_id);
-                    baskets.push({
-                        id: basket.id,
-                        title: basket.title,
-                        slug: basket.slug,
-                        discount: basket.discount,
-                        color: color,
-                        size: size,
-                        images: basket.images,
-                        price: basket.price,
-                        quantity: basket.pivot.quantity,
-                    });
-                });
-            }
+            const baskets: BasketType[] = userData.baskets[0].products.map((basket) => {
+
+                const color = basket.pivot.color_id && basket.colors.length
+                    ? basket.colors.find((color) => color.id === basket.pivot.color_id) : undefined
+
+                const size = basket.sizes.find((size) => size.id === basket.pivot.size_id) ?? undefined
+
+                return {
+                    id: basket.id,
+                    title: basket.title ?? 'Unknown',
+                    slug: basket.slug,
+                    discount: basket.discount ?? 0,
+                    color: color,
+                    size: size,
+                    images: basket.images ?? [],
+                    price: basket.price || '0',
+                    quantity: basket.pivot.quantity,
+                };
+            });
             dispatch(addFullBasket(baskets));
             dispatch(setUserStatus('idle'));
         } else if (error) {
-            dispatch(setUserError('Failed to fetch user data'));
-            dispatch(setUserStatus('failed'));
+            if (error.message === 'verify-email') {
+                router.push('/verify-email');
+            } else {
+                dispatch(setUserError('Failed to fetch user data'));
+                dispatch(setUserStatus('failed'));
+            }
         }
-    }, [userData, error, dispatch]);
+    }, [userData, error, dispatch, router]);
 
     const register = async ({setErrors, ...props}: RegisterProps) => {
         try {
@@ -112,7 +118,7 @@ export const useAuth = ({
             if (error.response?.status === 422) {
                 setErrors(error.response.data.errors);
             } else {
-                dispatch(setUserStatus('failed'));
+                dispatch(setUserError('Login failed'));
             }
             dispatch(setUserStatus('failed'));
         }
@@ -139,28 +145,6 @@ export const useAuth = ({
             logout();
         }
     }, [userData, error, middleware, redirectIfAuthenticated, router, logout]);
-
-    // const logout = async () => {
-    //   try {
-    //     if (!error) {
-    //       await axios.post('/api/logout');
-    //       dispatch(setUser(null));
-    //       dispatch(addDefaultFavorites([]));
-    //       window.location.pathname = '/login';
-    //     }
-    //   } catch (err) {
-    //     dispatch(setUserStatus('failed'));
-    //     console.error('Logout failed', err);
-    //   }
-    // };
-    //
-    // useEffect(() => {
-    //   if (middleware === 'guest' && redirectIfAuthenticated && user) {
-    //     router.push(redirectIfAuthenticated);
-    //   } else if (middleware === 'auth' && error) {
-    //     logout();
-    //   }
-    // }, [user, error, middleware, redirectIfAuthenticated, router, logout]);
 
     return {
         userData,

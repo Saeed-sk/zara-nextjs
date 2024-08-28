@@ -89,13 +89,13 @@ export interface PivotType {
 export interface ProductType {
     id: number;
     template?: "single" | "collection";
-    title?: string;
-    parent_id?: number | null;
+    title: string;
+    parent_id: number | null;
     description?: string;
     maintenance?: string;
     slug: string;
-    discount?: string;
-    price?: string;
+    discount: number;
+    price: string;
     created_at?: string;
     updated_at?: string;
     pivot: PivotType
@@ -109,24 +109,13 @@ export interface ProductType {
 
 export interface BasketType {
     id: number;
-    title?: string;
-    discount?: string;
-    slug?: string;
-    price?: string;
-    color?: {
-        id: number;
-        name: string;
-        color: string;
-        created_at?: string;
-        updated_at?: string;
-    };
-    size?: {
-        id: number;
-        size: string;
-        created_at: string;
-        updated_at: string;
-    };
-    images?: ImageType[];
+    title: string;
+    discount: number;
+    slug: string;
+    price: string;
+    color?: ColorType;
+    size?: SizeType;
+    images: ImageType[];
     quantity: number;
 }
 

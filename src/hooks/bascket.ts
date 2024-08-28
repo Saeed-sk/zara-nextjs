@@ -2,7 +2,7 @@ import {BasketType, ProductType} from "@/types";
 import {useSelector} from "react-redux";
 import {RootState} from "@/store/store";
 
-export function useInBasket(product: ProductType): boolean {
+export function useInBasket(product: BasketType): boolean {
     const baskets:BasketType[] = useSelector((state:RootState) => state.basket.baskets);
     return baskets.some(
         (basket) =>
